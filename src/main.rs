@@ -1,10 +1,4 @@
-pub enum Token {
-    Integer(i64),
-    Symbol(String),
-    LParen,
-    Rparen,
-}
-
+mod lexer;
 fn main() {
     println!("Hello, world!");
 }
