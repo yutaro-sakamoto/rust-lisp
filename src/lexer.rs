@@ -1,4 +1,7 @@
+use std::collections::*;
+
 #[derive(Debug, Clone, PartialEq)]
+
 pub enum Token {
     Integer(i64),
     Symbol(String),
@@ -6,17 +9,17 @@ pub enum Token {
     RParen,
 }
 
-pub fn tokenize(program: &str) -> Vec<Token> {
+pub fn tokenize(program: &str) -> VecDeque<Token> {
     let program2 = program.replace("(", " ( ").replace(")", " ) ");
     let words = program2.split_whitespace();
-    let mut tokens: Vec<Token> = Vec::new();
+    let mut tokens = VecDeque::new();
     for word in words {
         match word {
-            "(" => tokens.push(Token::LParen),
-            ")" => tokens.push(Token::RParen),
+            "(" => tokens.push_back(Token::LParen),
+            ")" => tokens.push_back(Token::RParen),
             _ => match word.parse::<i64>() {
-                Ok(i) => tokens.push(Token::Integer(i)),
-                Err(_) => tokens.push(Token::Symbol(word.to_string())),
+                Ok(i) => tokens.push_back(Token::Integer(i)),
+                Err(_) => tokens.push_back(Token::Symbol(word.to_string())),
             },
         }
     }
@@ -32,13 +35,13 @@ mod tests {
         let tokens = tokenize("(+ 1 2)");
         assert_eq!(
             tokens,
-            vec![
+            VecDeque::from([
                 Token::LParen,
                 Token::Symbol("+".to_string()),
                 Token::Integer(1),
                 Token::Integer(2),
                 Token::RParen,
-            ]
+            ])
         )
     }
 }
