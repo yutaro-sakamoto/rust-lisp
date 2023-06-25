@@ -1,4 +1,5 @@
 use crate::object::Object;
+use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -7,9 +8,13 @@ pub struct Env {
     vars: HashMap<String, Object>,
 }
 
-//pub fn find_symbol(env: &Env, s: String) -> Result<Object, String> {
-//    match env.borrow_mut().get(s) {
-//        None => Err(format!("Unbound symbol: {}", s)),
-//        Some(s) => Ok(s),
-//    }
-//}
+fn find_symbol(env: &Rc<RefCell<Env>>, s: String) -> Result<Object, String> {
+    let e = env.as_ref().borrow();
+    match e.vars.get(&s) {
+        None => match &e.parent {
+            None => Err(format!("Unbound symbol: {}", s)),
+            Some(parent_env) => find_symbol(&parent_env, s),
+        },
+        Some(object) => Ok(object.clone()),
+    }
+}

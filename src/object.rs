@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, PartialEq)]
 pub enum Object {
     Void,
     Lmabda(Vec<String>, Vec<Object>),
