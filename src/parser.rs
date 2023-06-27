@@ -1,16 +1,17 @@
 use crate::lexer::*;
+use crate::object::*;
 
 use std::collections::*;
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum Object {
-    Void,
-    Integer(i64),
-    Bool(bool),
-    Symbol(String),
-    Lambda(Vec<String>, Vec<Object>),
-    List(Vec<Object>),
-}
+//#[derive(Debug, Clone, PartialEq)]
+//pub enum Object {
+//    Void,
+//    Integer(i64),
+//    Bool(bool),
+//    Symbol(String),
+//    Lambda(Vec<String>, Vec<Object>),
+//    List(Vec<Object>),
+//}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct ParseError {

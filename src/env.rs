@@ -4,8 +4,8 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 pub struct Env {
-    parent: Option<Rc<RefCell<Env>>>,
-    vars: HashMap<String, Object>,
+    pub parent: Option<Rc<RefCell<Env>>>,
+    pub vars: HashMap<String, Object>,
 }
 
 fn find_symbol(env: &Rc<RefCell<Env>>, s: String) -> Result<Object, String> {
