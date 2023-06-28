@@ -46,11 +46,29 @@ fn eval_if(list: &Vec<Object>, env: &mut Env) -> EvalResult {
 }
 
 fn eval_function_definition(list: &Vec<Object>, env: &mut Env) -> EvalResult {
-    Err(format!("fail: eval_function_definition is not implemented"))
+    let params = match &list[1] {
+        Object::List(list) => {
+            let mut params = Vec::new();
+            for param in list {
+                match param {
+                    Object::Symbol(s) => params.push(s.clone()),
+                    _ => return Err(format!("Invalid lambda parameter")),
+                }
+            }
+            params
+        }
+        _ => return Err(format!("Invalid lambda")),
+    };
+
+    let body = match &list[2] {
+        Object::List(list) => list.clone(),
+        _ => return Err(format!("Invalid lambda")),
+    };
+    Ok(Object::Lambda(params, body))
 }
 
 fn eval_function_call(s: &String, list: &Vec<Object>, env: &mut Env) -> EvalResult {
-    Err(format!("fail: eval_functoin_call is not implemented"))
+    Err(format!("fail: eval_function_call is not implemented"))
 }
 
 mod tests {
