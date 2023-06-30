@@ -1,16 +1,18 @@
 use crate::env::*;
 use crate::object::*;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 type EvalResult = Result<Object, String>;
 
-pub fn eval(object: Object, env: &mut Env) -> EvalResult {
+pub fn eval(object: Object, env: &mut Rc<RefCell<Env>>) -> EvalResult {
     match &object {
         Object::List(list) => eval_list(list, env),
         other => Ok(other.clone()),
     }
 }
 
-fn eval_list(list: &Vec<Object>, env: &mut Env) -> EvalResult {
+fn eval_list(list: &Vec<Object>, env: &mut Rc<RefCell<Env>>) -> EvalResult {
     match &list[0] {
         Object::Symbol(s) => match s.as_str() {
             "+" | "-" | "*" | "/" | "<" | ">" | "=" | "!=" => eval_binary_op(list, env),
@@ -22,7 +24,7 @@ fn eval_list(list: &Vec<Object>, env: &mut Env) -> EvalResult {
     }
 }
 
-fn eval_binary_op(list: &Vec<Object>, env: &mut Env) -> EvalResult {
+fn eval_binary_op(list: &Vec<Object>, env: &mut Rc<RefCell<Env>>) -> EvalResult {
     if list.len() != 3 {
         return Err(format!("A binary operator must take exactly two arguments"));
     }
@@ -41,11 +43,11 @@ fn eval_binary_op(list: &Vec<Object>, env: &mut Env) -> EvalResult {
     }
 }
 
-fn eval_if(list: &Vec<Object>, env: &mut Env) -> EvalResult {
+fn eval_if(list: &Vec<Object>, env: &mut Rc<RefCell<Env>>) -> EvalResult {
     Err(format!("fail: eval_if is not implemented"))
 }
 
-fn eval_function_definition(list: &Vec<Object>, env: &mut Env) -> EvalResult {
+fn eval_function_definition(list: &Vec<Object>, env: &mut Rc<RefCell<Env>>) -> EvalResult {
     let params = match &list[1] {
         Object::List(list) => {
             let mut params = Vec::new();
@@ -67,8 +69,12 @@ fn eval_function_definition(list: &Vec<Object>, env: &mut Env) -> EvalResult {
     Ok(Object::Lambda(params, body))
 }
 
-fn eval_function_call(s: &String, list: &Vec<Object>, env: &mut Env) -> EvalResult {
-    Err(format!("fail: eval_function_call is not implemented"))
+fn eval_function_call(s: &String, list: &Vec<Object>, env: &mut Rc<RefCell<Env>>) -> EvalResult {
+    if let Err(_) = env.borrow_mut().get(s) {
+        return Err(format!("Unbound symbol: {}", s));
+    }
+
+    Err(format!("eval_function_call is not implemented"))
 }
 
 mod tests {
@@ -80,10 +86,7 @@ mod tests {
     #[test]
     fn test_evaluator() {
         let object = parse("(+ 1 2)").unwrap();
-        let mut env = Env {
-            parent: None,
-            vars: HashMap::new(),
-        };
+        let mut env = Rc::new(RefCell::new(Env::new()));
         let result = eval(object, &mut env);
         assert_eq!(result.unwrap_or(Object::Void), Object::Integer(3));
     }
