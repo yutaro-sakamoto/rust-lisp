@@ -5,8 +5,8 @@ use std::rc::Rc;
 
 type EvalResult = Result<Object, String>;
 
-pub fn eval(object: Object, env: &mut Rc<RefCell<Env>>) -> EvalResult {
-    match &object {
+pub fn eval(object: &Object, env: &mut Rc<RefCell<Env>>) -> EvalResult {
+    match object {
         Object::List(list) => eval_list(list, env),
         other => Ok(other.clone()),
     }
@@ -70,11 +70,21 @@ fn eval_function_definition(list: &Vec<Object>, env: &mut Rc<RefCell<Env>>) -> E
 }
 
 fn eval_function_call(s: &String, list: &Vec<Object>, env: &mut Rc<RefCell<Env>>) -> EvalResult {
-    if let Err(_) = env.borrow_mut().get(s) {
-        return Err(format!("Unbound symbol: {}", s));
-    }
-
-    Err(format!("eval_function_call is not implemented"))
+    let lambda = env.borrow().get(s);
+    match lambda {
+        Err(_) => Err(format!("Unbound symbol: {}", s)),
+        Ok(func) => match func {
+            Object::Lambda(params, body) => {
+                let mut new_env = Rc::new(RefCell::new(Env::extend(env.clone())));
+                for (i, param) in params.iter().enumerate() {
+                    let val = eval(&list[i+1], env)?;
+                    new_env.borrow_mut().put(param, val);
+                }
+                return eval(&Object::List(body), &mut new_env);
+            }
+            _ => Err(format!("Not a lambda: {}", s)),
+        }
+    }  
 }
 
 mod tests {
@@ -87,7 +97,7 @@ mod tests {
     fn test_evaluator() {
         let object = parse("(+ 1 2)").unwrap();
         let mut env = Rc::new(RefCell::new(Env::new()));
-        let result = eval(object, &mut env);
+        let result = eval(&object, &mut env);
         assert_eq!(result.unwrap_or(Object::Void), Object::Integer(3));
     }
 }
