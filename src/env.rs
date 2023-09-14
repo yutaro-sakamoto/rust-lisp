@@ -35,7 +35,7 @@ impl Env {
     pub fn extend(parent: Rc<RefCell<Self>>) -> Env {
         Env {
             parent: Some(parent),
-            vars: HashMap::new()
+            vars: HashMap::new(),
         }
     }
 }

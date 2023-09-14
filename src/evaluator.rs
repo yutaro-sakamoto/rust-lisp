@@ -91,14 +91,14 @@ fn eval_function_call(s: &String, list: &Vec<Object>, env: &mut Rc<RefCell<Env>>
             Object::Lambda(params, body) => {
                 let mut new_env = Rc::new(RefCell::new(Env::extend(env.clone())));
                 for (i, param) in params.iter().enumerate() {
-                    let val = eval(&list[i+1], env)?;
+                    let val = eval(&list[i + 1], env)?;
                     new_env.borrow_mut().put(param, val);
                 }
                 return eval(&Object::List(body), &mut new_env);
             }
             _ => Err(format!("Not a lambda: {}", s)),
-        }
-    }  
+        },
+    }
 }
 
 mod tests {
