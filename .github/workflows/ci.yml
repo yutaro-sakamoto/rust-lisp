@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       with:
         path: |
           ~/.cargo/registry
@@ -22,6 +22,16 @@ jobs:
     - name: Build
       run: |
         cargo build
+
+    - name: Format check
+      run: |
+        rustup component add rustfmt
+        cargo fmt --all -- --check
+    
+    - name: Run Clippy
+      run: |
+        rustup component add clippy
+        cargo clippy
      
     - name: Test
       run: |
